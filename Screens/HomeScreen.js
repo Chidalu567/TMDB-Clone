@@ -1,61 +1,120 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
-  Text,
   View,
   Image,
-  SafeAreaView,
+  ScrollView,
   FlatList,
+  Dimensions,
 } from "react-native";
-import { getPopularMovies, getUpComingMovies } from "../Services/movieServices";
 
-const HomeScreen = () => {
-  const [movie, setMovie] = useState("");
+import {
+  getPopularMovies,
+  getUpComingMovies,
+  getPopularTv,
+  getFamilyTv,
+  getDocumentaryTv,
+} from "../Services/movieServices";
+
+import { CarouselList } from "../components/ImageCarouselList";
+
+//getting dimension of the screen
+const dimension = Dimensions.get("screen");
+
+const HomeScreen = ({ navigation }) => {
+  const [popularMovie, setPopularMovie] = useState("");
+
   const [erro, setErro] = useState(false);
 
   const [upComing, setUpComing] = useState(""); //state value and handler definition
 
-  useEffect(() => {
-    getPopularMovies()
-      .then((movies) => {
-        setMovie(movies[0]);
-      })
-      .catch((err) => {
-        setErro(err);
-      });
+  const [popularTv, setPopularTv] = useState(""); //state value and handler deefinition
 
-    //get upcoming movies
-    getUpComingMovies()
-      .then((param) => {
-        setUpComing(param);
+  const [familyTv, setFamilyTv] = useState(""); //state value and handler definition
+
+  const [docTv, setDocTv] = useState(""); //state value and handler definition
+
+  //-------------combining all the promises together for Clean code -------------//
+  const getData = () => {
+    return Promise.all([
+      getPopularMovies(),
+      getUpComingMovies(),
+      getPopularTv(),
+      getFamilyTv(),
+      getDocumentaryTv(),
+    ]);
+  };
+
+  useEffect(() => {
+    getData()
+      .then(([popMovData, upComMovData, popTvData, famTvData, docMovData]) => {
+        setPopularMovie(popMovData);
+        setUpComing(upComMovData);
+        setPopularTv(popTvData);
+        setFamilyTv(famTvData);
+        setDocTv(docMovData);
       })
       .catch((err) => {
-        setErro(err);
+        console.log(err);
       });
   }, []);
 
   return (
-    <View style={styles.container}>
-      {erro ? (
-        <Text style={styles.error}>Error in Server</Text>
-      ) : (
-        <>
+    <React.Fragment>
+      <ScrollView>
+        <View style={styles.container}>
           <FlatList
             data={upComing}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <Image
                 style={styles.image}
                 source={{
-                  uri: "https://image.tmdb.org/t/p/w500/hRMfgGFRAZIlvwVWy8DYJdLTpvN.jpg",
+                  uri: "https://image.tmdb.org/t/p/w500" + item.poster_path,
                 }}
               />
             )}
             horizontal
           />
-        </>
-      )}
-    </View>
+        </View>
+
+        {/*Popular movie carousel component */}
+        <View>
+          <CarouselList
+            navigation={navigation}
+            title="Popular movies"
+            content={popularMovie}
+          />
+        </View>
+
+        {/*Popular tv carousel component */}
+        <View>
+          <CarouselList
+            nnavigation={navigation}
+            title="Popular Tv"
+            content={popularTv}
+          />
+        </View>
+
+        {/*Family tv carousel component */}
+        <View>
+          <CarouselList
+            navigation={navigation}
+            title="Family Tv"
+            content={familyTv}
+          />
+        </View>
+
+        {/*Documentaries tv carousel component */}
+        <View>
+          <CarouselList
+            navigation={navigation}
+            title="Documentaries"
+            content={docTv}
+          />
+        </View>
+      </ScrollView>
+    </React.Fragment>
   );
 };
 
@@ -64,14 +123,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  error: {
-    color: "red",
-  },
   image: {
-    width: "50",
-    height: "50",
+    width: 350,
+    height: dimension.height / 1.3,
     resizeMode: "cover",
-    margin: 5,
   },
 });
 
