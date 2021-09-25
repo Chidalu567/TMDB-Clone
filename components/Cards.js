@@ -5,7 +5,9 @@ import PropTypes from "prop-types";
 export const Card = ({ navigation, item }) => {
   return (
     <View>
-      <TouchableOpacity onPress={() => navigation.navigate("Detail")}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Detail", { MovieDetail: item })}
+      >
         <Image
           style={styles.image}
           resizeMode="cover"

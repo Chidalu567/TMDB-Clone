@@ -90,7 +90,7 @@ const HomeScreen = ({ navigation }) => {
         {/*Popular tv carousel component */}
         <View>
           <CarouselList
-            nnavigation={navigation}
+            navigation={navigation}
             title="Popular Tv"
             content={popularTv}
           />

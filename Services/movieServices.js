@@ -40,3 +40,12 @@ export const getDocumentaryTv = async () => {
   const result = await axios.get(documentaryTv);
   return result.data.results;
 };
+
+//function to get The Details of a specific movie
+export const getSpecificMovie = async (id) => {
+  const result = await axios.get(
+    `https://api.themoviedb.org/3/movie/${id}?api_key=67de45401430218afb0057fa04ee72fd`
+  );
+
+  return result.data;
+}; //javascript function definition
